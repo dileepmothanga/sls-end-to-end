@@ -1,0 +1,29 @@
+{
+  "name": "sls-end-to-end",
+  "version": "1.0.0",
+  "description": "",
+  "main": "handler.js",
+  "scripts": {
+    "lint": "eslint ./ --ignore-path .gitignore --ignore-pattern internals/scripts",
+    "lint:fix": "npm run lint -- --fix"
+  },
+  "author": "dileep",
+  "license": "ISC",
+  "dependencies": {
+    "http-status": "^1.5.0",
+    "node-fetch": "^2.6.1",
+    "querystring": "^0.2.0",
+    "validator": "^13.1.17"
+  },
+  "devDependencies": {
+    "eslint": "^7.12.0",
+    "eslint-plugin-import": "^2.22.1",
+    "husky": "^4.3.0",
+    "serverless-offline": "^6.8.0"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint"
+    }
+  }
+}
