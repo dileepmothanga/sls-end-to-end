@@ -12,7 +12,6 @@
 # Happy Coding!
 
 service: sls-end-to-end
-# app and org for use with dashboard.serverless.com
 app: sls-end-to-end
 org: dileeptechlearn
 
@@ -24,6 +23,24 @@ provider:
   name: aws
   runtime: nodejs12.x
 
+  environment:
+    DYNAMODB_TABLE_USER: usersTable
+
+  custom:
+    dynamodb:
+      stages:
+        - test
+        - dev
+      start:
+        port: 8000
+        inMemory: true
+        heapInitial: 200m
+        heapMax: 1g
+        migrate: true
+        seed: true
+        convertEmptyValues: true
+        # Uncomment only if you already have a DynamoDB running locally
+        noStart: true  
 # you can overwrite defaults here
 #  stage: dev
 #  region: us-east-1
@@ -58,16 +75,51 @@ provider:
 #    - exclude-me-dir/**
 
 plugins:
+  - serverless-dynamodb-local
   - serverless-offline
 
 functions:
-  hello:
-    handler: handler.hello
+
+  sampleList:
+    handler: src/handler/SampleHandler.list
     events:
       - http:
-          path: hello
+          path: sample/list
+          method: get
+          cors: true
+
+  sampleUserList:
+    handler: src/handler/SampleUserHandler.list
+    events:
+      - http:
+          path: user/list
+          method: get
+          cors: true
+
+  sampleUserCreate:
+    handler: src/handler/SampleUserHandler.create
+    events:
+      - http:
+          path: user/create
           method: post
-          cors: true  
+          cors: true
+
+resources:
+  Resources:
+    UserDynamoDbTable:
+      Type: 'AWS::DynamoDB::Table'
+      DeletionPolicy: Retain
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:provider.environment.DYNAMODB_TABLE_USER}
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details
