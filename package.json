@@ -21,7 +21,7 @@
     "eslint": "^7.12.0",
     "eslint-plugin-import": "^2.22.1",
     "husky": "^4.3.0",
-    "serverless-dynamodb-local": "^0.2.39",
+    "serverless-dynamodb-local": "^0.2.24",
     "serverless-offline": "^6.8.0"
   },
   "husky": {
