@@ -1,30 +1,29 @@
 const uuid = require('uuid');
 const httpStatus = require('http-status');
 
-// const dynamoDb = new AWS.DynamoDB.DocumentClient();
 const dbClient = require('../config/DbClient');
 
-module.exports.list = async () => {
+module.exports.list = (event, context, callback) => {
+
     const params = {
         TableName: process.env.DYNAMODB_TABLE_USER
     };
-    try {
-        const results = await dbClient.scan(params);
-        console.log(results.Items);
-        const response = {
-            statusCode: 200,
-            body: JSON.stringify(results.Items)
-        };
-        return response;
-    } catch (error) {
-        return {
-            statusCode: error.statusCode || httpStatus.NOT_IMPLEMENTED
-        };
-    }
+
+    dbClient.scan(params, (err, results) => {
+        if (err) {
+            callback(null, {
+                statusCode: error.statusCode || httpStatus.NOT_IMPLEMENTED
+            });
+        }
+        callback(null, {
+            statusCode: httpStatus.OK,
+            body: JSON.stringify(results)
+        });
+    });
 };
 
 
-module.exports.create = async () => {
+module.exports.create = (event, context, callback) => {
     const timestamp = new Date().getTime();
 
     const params = {
@@ -36,37 +35,17 @@ module.exports.create = async () => {
         }
     };
 
-
     // write the todo to the database
     return dbClient.put(params, error => {
-        // handle potential errors
         if (error) {
-            console.error(error);
-            return {
-                statusCode: error.statusCode,
-                headers: { 'Content-Type': 'text/plain' },
-                body: 'Couldn\'t create the todo item.',
-            };
+            callback(null, {
+                statusCode: error.statusCode || httpStatus.NOT_IMPLEMENTED
+            });
         }
-        console.log('ss',params.Item);
-        // create a response
-        const response = {
-            statusCode: 200,
+        callback(null, {
+            statusCode: httpStatus.OK,
             body: JSON.stringify(params.Item),
-        };
-        return response;
+        });
     });
-    // try {
-    //     const results = await dbClient.put(params);
-    //     console.log(results)
-    //     const response = {
-    //         statusCode: 200,
-    //         body: JSON.stringify(results.Items),
-    //     };
-    //     return response;
-    // } catch (error) {
-    //     return {
-    //         statusCode: error.statusCode || httpStatus.NOT_IMPLEMENTED
-    //     };
-    // }
+
 };
